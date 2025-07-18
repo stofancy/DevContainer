@@ -25,6 +25,7 @@ setup_ssh_keys() {
     echo "⚠️ Warning: No SSH keys found in environment variables."
     echo "SSH key authentication will not be available."
     echo "To add SSH keys, run the setup script: ./dotnet/setup-ssh-dotenv.sh"
+    echo "Or copy the example template: cp ./dotnet/.ssh-keys-template.example ./dotnet/.ssh-keys-template"
     return 1
 }
 

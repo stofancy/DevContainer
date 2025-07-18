@@ -3,6 +3,7 @@
 
 ENV_FILE_PATH="./dotnet/.env"
 TEMPLATE_FILE="./dotnet/.ssh-keys-template"
+EXAMPLE_FILE="./dotnet/.ssh-keys-template.example"
 
 echo "🔑 SSH Keys Setup for Dev Container"
 echo "=================================="
@@ -15,9 +16,10 @@ show_help() {
     echo "This script creates a .env file with base64-encoded SSH keys from a template file."
     echo ""
     echo "Steps:"
-    echo "1. Edit ./dotnet/.ssh-keys-template with your SSH keys"
-    echo "2. Run this script to generate the .env file"
-    echo "3. The template file will be automatically deleted for security"
+    echo "1. Copy the example template: cp ./dotnet/.ssh-keys-template.example ./dotnet/.ssh-keys-template"
+    echo "2. Edit ./dotnet/.ssh-keys-template with your SSH keys"
+    echo "3. Run this script to generate the .env file"
+    echo "4. The template file will be automatically deleted for security"
     echo ""
     echo "Options:"
     echo "  --help            Show this help message"
@@ -28,10 +30,17 @@ setup_from_template() {
     if [[ ! -f "$TEMPLATE_FILE" ]]; then
         echo "❌ Template file not found: $TEMPLATE_FILE"
         echo ""
-        echo "💡 Please create the template file first:"
-        echo "   1. Copy the provided template to: $TEMPLATE_FILE"
-        echo "   2. Edit it with your actual SSH keys"
-        echo "   3. Run this script again"
+        if [[ -f "$EXAMPLE_FILE" ]]; then
+            echo "💡 Please create the template file from the example:"
+            echo "   1. Copy the example: cp $EXAMPLE_FILE $TEMPLATE_FILE"
+            echo "   2. Edit $TEMPLATE_FILE with your actual SSH keys"
+            echo "   3. Run this script again"
+        else
+            echo "💡 Please create the template file first:"
+            echo "   1. Copy the provided template to: $TEMPLATE_FILE"
+            echo "   2. Edit it with your actual SSH keys"
+            echo "   3. Run this script again"
+        fi
         echo ""
         echo "Template content should look like:"
         echo "   PRIVATE_KEY=\"-----BEGIN OPENSSH PRIVATE KEY-----"
@@ -48,13 +57,15 @@ setup_from_template() {
     source "$TEMPLATE_FILE"
     
     # Check if keys were provided
-    if [[ "$PRIVATE_KEY" == *"PASTE_YOUR_PRIVATE_KEY_CONTENT_HERE"* ]]; then
+    if [[ "$PRIVATE_KEY" == *"YOUR_PRIVATE_KEY_CONTENT_GOES_HERE"* ]]; then
         echo "❌ Please replace the placeholder text in $TEMPLATE_FILE with your actual private key"
+        echo "💡 Your private key is typically in ~/.ssh/id_rsa"
         return 1
     fi
     
-    if [[ "$PUBLIC_KEY" == *"PASTE_YOUR_PUBLIC_KEY_HERE"* ]]; then
+    if [[ "$PUBLIC_KEY" == *"YOUR_PUBLIC_KEY_CONTENT_GOES_HERE"* ]]; then
         echo "❌ Please replace the placeholder text in $TEMPLATE_FILE with your actual public key"
+        echo "💡 Your public key is typically in ~/.ssh/id_rsa.pub"
         return 1
     fi
     

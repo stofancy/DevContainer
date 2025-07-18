@@ -39,8 +39,9 @@ jspm_packages/
 .env.local
 .env.production
 
-# SSH keys template (contains sensitive data)
-nodejs/.ssh-keys-template
+# SSH keys template (contains sensitive data) - but allow .example files
+**/.ssh-keys-template
+!**/.ssh-keys-template.example
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache

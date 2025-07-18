@@ -38,9 +38,13 @@ To use SSH keys for Git operations and other SSH-based tasks in the dev containe
 
 ### Simple Template-Based Setup
 
-1. **Edit the template file** with your SSH keys:
+1. **Copy and edit the template file** with your SSH keys:
    ```bash
+   # Copy the example template
+   cp ./dotnet/.ssh-keys-template.example ./dotnet/.ssh-keys-template
+   
    # Edit this file with your actual SSH keys
+   # Your keys are typically in ~/.ssh/id_rsa and ~/.ssh/id_rsa.pub
    ./dotnet/.ssh-keys-template
    ```
 
@@ -68,11 +72,15 @@ your_private_key_content_here
 PUBLIC_KEY="ssh-rsa your_public_key_content_here your_email@example.com"
 ```
 
+**Note:** Copy from `.ssh-keys-template.example` to get started, then replace the placeholder content with your actual SSH keys.
+
 ### Security Notes
 
-- The template file is automatically deleted after processing for security
+- Copy `.ssh-keys-template.example` to `.ssh-keys-template` and edit with your real keys
+- The template file `.ssh-keys-template` is automatically deleted after processing for security
 - SSH keys are base64-encoded before being stored in the `.env` file
 - The `.env` file is already in `.gitignore` to prevent accidental commits
+- The `.ssh-keys-template` file is also in `.gitignore` to prevent committing real SSH keys
 
 ## What's Included
 
