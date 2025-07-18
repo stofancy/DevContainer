@@ -24,7 +24,7 @@ setup_ssh_keys() {
     
     echo "⚠️ Warning: No SSH keys found in environment variables."
     echo "SSH key authentication will not be available."
-    echo "To add SSH keys, run the setup script: ./.devcontainer/setup-ssh-dotenv.sh"
+    echo "To add SSH keys, run the setup script: ./nodejs/setup-ssh-dotenv.sh"
     return 1
 }
 

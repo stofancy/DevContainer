@@ -30,40 +30,23 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Switch to the vscode user to configure oh-my-zsh
-USER vscode
+# Copy post-create setup script
+COPY post-create-setup.sh /tmp/post-create-setup.sh
+RUN chmod +x /tmp/post-create-setup.sh
 
-# Set up SSH keys
-RUN mkdir -p ~/.ssh
-COPY sshkeys/id_rsa ~/.ssh/id_rsa
-COPY sshkeys/id_rsa.pub ~/.ssh/id_rsa.pub
-RUN chmod 600 ~/.ssh/id_rsa \
-    && chmod 644 ~/.ssh/id_rsa.pub \
-    && ssh-keyscan github.com >> ~/.ssh/known_hosts \
-    && ssh-keyscan gitlab.com >> ~/.ssh/known_hosts \
-    && ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts \
-    && ssh-keyscan ssh.dev.azure.com >> ~/.ssh/known_hosts
+# Switch to the node user (default user in javascript-node base image)
+USER node
 
-# Configure SSH
-RUN echo 'Host *' > ~/.ssh/config \
-    && echo '    AddKeysToAgent yes' >> ~/.ssh/config \
-    && echo '    IdentityFile ~/.ssh/id_rsa' >> ~/.ssh/config \
-    && echo '    ServerAliveInterval 60' >> ~/.ssh/config \
-    && echo '    ServerAliveCountMax 3' >> ~/.ssh/config \
-    && chmod 600 ~/.ssh/config
+# Install oh-my-zsh for the node user
+RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --unattended || true
 
-# Install oh-my-zsh if not already installed
-RUN if [ ! -d "$HOME/.oh-my-zsh" ]; then \
-        sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --unattended; \
-    fi
-
-# Install popular oh-my-zsh plugins
+# Install oh-my-zsh plugins
 RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions \
     && git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting \
     && git clone https://github.com/zsh-users/zsh-completions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-completions
 
 # Configure .zshrc with useful settings
-RUN sed -i 's/ZSH_THEME="devcontainers"/ZSH_THEME="agnoster"/' ~/.zshrc \
+RUN sed -i 's/ZSH_THEME="devcontainers"/ZSH_THEME="af-magic"/' ~/.zshrc \
     && sed -i 's/plugins=(git)/plugins=(git node npm docker docker-compose zsh-autosuggestions zsh-syntax-highlighting zsh-completions)/' ~/.zshrc \
     && echo '' >> ~/.zshrc \
     && echo '# Custom aliases' >> ~/.zshrc \
@@ -112,6 +95,6 @@ RUN git config --global init.defaultBranch main \
 
 # Set the default shell to zsh
 USER root
-RUN chsh -s /bin/zsh vscode
+RUN chsh -s /bin/zsh node
 
-USER vscode
+USER node

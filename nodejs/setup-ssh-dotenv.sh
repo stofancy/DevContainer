@@ -1,8 +1,8 @@
 #!/bin/bash
 # setup-ssh-dotenv.sh - Script to create .env file with SSH keys for dev container
 
-ENV_FILE_PATH="./.devcontainer/.env"
-TEMPLATE_FILE="./.devcontainer/.ssh-keys-template"
+ENV_FILE_PATH="./nodejs/.env"
+TEMPLATE_FILE="./nodejs/.ssh-keys-template"
 
 echo "🔑 SSH Keys Setup for Dev Container"
 echo "=================================="
@@ -15,7 +15,7 @@ show_help() {
     echo "This script creates a .env file with base64-encoded SSH keys from a template file."
     echo ""
     echo "Steps:"
-    echo "1. Edit ./.devcontainer/.ssh-keys-template with your SSH keys"
+    echo "1. Edit ./nodejs/.ssh-keys-template with your SSH keys"
     echo "2. Run this script to generate the .env file"
     echo "3. The template file will be automatically deleted for security"
     echo ""

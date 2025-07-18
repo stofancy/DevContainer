@@ -41,12 +41,12 @@ To use SSH keys for Git operations and other SSH-based tasks in the dev containe
 1. **Edit the template file** with your SSH keys:
    ```bash
    # Edit this file with your actual SSH keys
-   ./.devcontainer/.ssh-keys-template
+   ./nodejs/.ssh-keys-template
    ```
 
 2. **Run the setup script**:
    ```bash
-   ./.devcontainer/setup-ssh-dotenv.sh
+   ./nodejs/setup-ssh-dotenv.sh
    ```
 
 3. **Rebuild your dev container**:
@@ -97,7 +97,7 @@ PUBLIC_KEY="ssh-rsa your_public_key_content_here your_email@example.com"
 
 ### SSH Keys Not Working
 1. Ensure SSH keys exist on your host machine (`~/.ssh/id_rsa` and `~/.ssh/id_rsa.pub`)
-2. Run the setup script: `./.devcontainer/setup-ssh-dotenv.sh`
+2. Run the setup script: `./nodejs/setup-ssh-dotenv.sh`
 3. Rebuild the container after creating the `.env` file
 
 ### Extensions Not Loading
@@ -111,7 +111,7 @@ If you prefer using the command line:
 
 ```bash
 # Build the container
-docker build -t node-devcontainer .devcontainer/
+docker build -t node-devcontainer nodejs/
 
 # Run with volume mounts (VS Code handles this automatically)
 docker run -it --rm -v "$(pwd)":/workspace node-devcontainer

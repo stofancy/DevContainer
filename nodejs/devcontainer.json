@@ -24,7 +24,7 @@
 	},
 
 	// Load environment variables from .env file with base64 encoded SSH keys
-	"runArgs": ["--env-file", ".devcontainer/.env"],
+	"runArgs": ["--env-file", "nodejs/.env"],
 	
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "/tmp/post-create-setup.sh",
