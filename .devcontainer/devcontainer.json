@@ -21,20 +21,14 @@
 				"ms-vscode.vscode-eslint"
 			]
 		}
-	}
+	},
 
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
+	// Load environment variables from .env file with base64 encoded SSH keys
+	"runArgs": ["--env-file", ".devcontainer/.env"],
+	
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "yarn install",
-
-	// Configure tool-specific properties.
-	// "customizations": {},
+	"postCreateCommand": "/tmp/post-create-setup.sh",
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+	"remoteUser": "node"
 }
