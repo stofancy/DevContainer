@@ -24,8 +24,8 @@ setup_ssh_keys() {
     
     echo "⚠️ Warning: No SSH keys found in environment variables."
     echo "SSH key authentication will not be available."
-    echo "To add SSH keys, run the setup script: ./nodejs/setup-ssh-dotenv.sh"
-    echo "Or copy the example template: cp ./nodejs/.ssh-keys-template.example ./nodejs/.ssh-keys-template"
+    echo "To add SSH keys, run the setup script: ./dotnet/setup-ssh-dotenv.sh"
+    echo "Or copy the example template: cp ./dotnet/.ssh-keys-template.example ./dotnet/.ssh-keys-template"
     return 1
 }
 
@@ -53,28 +53,46 @@ chmod 600 ~/.ssh/config
 
 echo "🎉 SSH setup completed!"
 
-# Setup Node.js versions with nvm
+# Setup .NET development environment
 echo ""
-echo "📦 Setting up Node.js LTS versions..."
+echo "📦 Setting up .NET development environment..."
 
-# Source nvm to make it available in this script
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+# Verify .NET installation
+echo "🔍 Verifying .NET installation..."
+dotnet --version
+dotnet --list-sdks
+dotnet --list-runtimes
 
-# Install the last 3 major LTS versions
-echo "⬇️ Installing Node.js 22 LTS (Jod)..."
-nvm install 22 --lts --latest-npm
-echo "✅ Node.js 22 LTS installed"
-
-# Set Node.js 22 as the default version
+# Install useful .NET global tools
 echo ""
-echo "🔧 Setting Node.js 22 LTS as default..."
-nvm alias default 22
-nvm use default
+echo "🛠️ Installing useful .NET global tools..."
+
+# Install Entity Framework Core CLI tools
+echo "⬇️ Installing Entity Framework Core CLI tools..."
+dotnet tool install --global dotnet-ef
+
+# Install ASP.NET Core code generator
+echo "⬇️ Installing ASP.NET Core code generator..."
+dotnet tool install --global dotnet-aspnet-codegenerator
+
+# Install .NET project templates
+echo "⬇️ Installing additional project templates..."
+dotnet new install Microsoft.AspNetCore.SPA.ProjectTemplates
+dotnet new install Microsoft.DotNet.Web.ProjectTemplates
+
+# Install NuGet CLI (if needed)
+echo "⬇️ Installing NuGet CLI..."
+dotnet tool install --global nuget
+
+# Setup global.json for consistent SDK version
+echo ""
+echo "📋 Available .NET templates:"
+dotnet new list --type project
 
 echo ""
-echo "📋 Installed Node.js versions:"
-nvm list
+echo "🔧 .NET global tools installed:"
+dotnet tool list --global
 
 echo ""
-echo "🚀 Node.js setup completed!"
+echo "🚀 .NET setup completed!"
 echo "✅ Post container setup completed!"

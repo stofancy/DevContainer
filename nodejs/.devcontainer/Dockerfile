@@ -17,8 +17,6 @@ RUN apt-get update && apt-get install -y \
     screen \
     zip \
     unzip \
-    sqlite3 \
-    postgresql-client \
     redis-tools \
     netcat-traditional \
     dnsutils \
