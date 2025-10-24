@@ -124,7 +124,6 @@ DevContainer/
 ├── quick-setup.sh             # Quick SSH template setup
 ├── .gitignore                 # Git ignore rules
 └── README.md                  # This file
-```
 
 ## Security Features
 
