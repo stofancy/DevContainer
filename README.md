@@ -62,8 +62,8 @@ docker run --rm -v devcontainer-shared-workspaces:/data -v "$PWD":/backup alpine
 Set your global git identity via environment variables placed in the `.devcontainer/.env` file for each stack (or a shared template):
 
 ```bash
-GIT_USER_NAME="Parker An"
-GIT_USER_EMAIL="parker.an@serko.com"
+GIT_USER_NAME="Your Name"
+GIT_USER_EMAIL="your.email@example.com"
 ```
 
 The post-create scripts will apply these to `git config --global user.name` and `user.email`. If unset, they fall back to `NPM_IDENT` or a placeholder.
