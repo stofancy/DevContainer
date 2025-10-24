@@ -75,6 +75,65 @@ echo ""
 echo "📋 Installed Node.js versions:"
 nvm list
 
+# Setup Fish shell configuration for nvm
+echo ""
+echo "� Setting up Fish shell configuration..."
+
+# Add NVM configuration to Fish config
+fish -c "
+echo '' >> ~/.config/fish/config.fish
+echo '# NVM configuration for Fish' >> ~/.config/fish/config.fish
+echo 'function nvm' >> ~/.config/fish/config.fish
+echo '    bass source ~/.nvm/nvm.sh --no-use ';' nvm \$argv' >> ~/.config/fish/config.fish
+echo 'end' >> ~/.config/fish/config.fish
+echo '' >> ~/.config/fish/config.fish
+echo '# Auto-load nvm on Fish start' >> ~/.config/fish/config.fish
+echo 'nvm use default --silent 2>/dev/null' >> ~/.config/fish/config.fish
+" 2>/dev/null || true
+
+echo "✅ NVM configuration for Fish completed!"
+
+# Setup welcome message for Fish
+fish -c "
+echo '' >> ~/.config/fish/config.fish
+echo '# Welcome message' >> ~/.config/fish/config.fish
+echo 'function fish_greeting' >> ~/.config/fish/config.fish
+echo '    echo \"�🚀 Node.js Dev Container Ready!\"' >> ~/.config/fish/config.fish
+echo '    echo \"📦 Available package managers: npm, yarn, pnpm\"' >> ~/.config/fish/config.fish
+echo '    echo \"🔧 Git tools: lazygit (lg), delta diff, GitHub CLI (gh), git aliases via plugin\"' >> ~/.config/fish/config.fish
+echo '    echo \"🐟 Fish shell with Fisher plugins loaded\"' >> ~/.config/fish/config.fish
+echo 'end' >> ~/.config/fish/config.fish
+"
+
+echo "✅ Fish shell configuration completed!"
+
 echo ""
 echo "🚀 Node.js setup completed!"
 echo "✅ Post container setup completed!"
+
+# Display installed tools summary
+echo ""
+echo "📋 Summary of installed tools:"
+echo "  🐟 Fish shell with Fisher plugin manager"
+echo "  📦 Package managers: npm, yarn, pnpm"  
+echo "  🔧 Git tools: delta, lazygit, GitHub CLI, git-extras"
+echo "  🎨 Fish plugins: autopair, done, fzf, z navigation, bobthefish theme"
+echo ""
+echo "🗂 Ensuring shared workspaces volume exists..."
+WORKSPACES_DIR="/home/node/workspaces"
+mkdir -p "$WORKSPACES_DIR" || true
+touch "$WORKSPACES_DIR/.keep" || true
+chown -R node:node "$WORKSPACES_DIR" || true
+echo "✅ Shared workspaces available at $WORKSPACES_DIR"
+
+echo "🔧 Configuring global git identity..."
+GIT_NAME="${GIT_USER_NAME:-${NPM_IDENT:-DevContainer User}}"
+GIT_EMAIL="${GIT_USER_EMAIL:-devcontainer@example.invalid}"
+git config --global user.name "$GIT_NAME"
+git config --global user.email "$GIT_EMAIL"
+git config --global init.defaultBranch main
+git config --global pull.rebase false
+git config --global core.pager "delta"
+git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+echo "✅ Git identity set to: $GIT_NAME <$GIT_EMAIL>"
+echo "  ⚡ Modern development environment ready!"

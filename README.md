@@ -24,13 +24,60 @@ This repository contains pre-configured development container templates for diff
 
 [📖 See dotnet/README.md for detailed setup instructions](dotnet/README.md)
 
+### 📁 Shared Workspaces Volume
+All devcontainers share a persistent folder mounted at `~/workspaces` using the named Docker volume `devcontainer-shared-workspaces`. Files placed there are preserved across rebuilds and are accessible from every stack (Node.js, .NET, Fullstack Aspire, etc.). Use it for:
+
+- Scratch projects or experiments
+- Cross-stack assets (scripts, notes, temp repos)
+- Cloning repos you want accessible everywhere
+
+The volume is mounted per environment at:
+
+- Node.js: `/home/node/workspaces`
+- .NET: `/home/vscode/workspaces`
+- Fullstack: `/home/vscode/workspaces`
+
+Initialization happens automatically via each environment's post-create script. A `.keep` file and minimal `.gitignore` are added if missing.
+
+To inspect the volume from the host:
+
+```bash
+docker volume inspect devcontainer-shared-workspaces
+```
+
+To remove (will delete all shared data):
+
+```bash
+docker volume rm devcontainer-shared-workspaces
+```
+
+To back up:
+
+```bash
+docker run --rm -v devcontainer-shared-workspaces:/data -v "$PWD":/backup alpine tar -czf /backup/workspaces-backup.tgz -C /data .
+```
+
+### Git Identity Configuration
+
+Set your global git identity via environment variables placed in the `.devcontainer/.env` file for each stack (or a shared template):
+
+```bash
+GIT_USER_NAME="Parker An"
+GIT_USER_EMAIL="parker.an@serko.com"
+```
+
+The post-create scripts will apply these to `git config --global user.name` and `user.email`. If unset, they fall back to `NPM_IDENT` or a placeholder.
+
+
 ## Quick Start
 
 ### 1. Prerequisites
+
 - VS Code with the Dev Containers extension
 - Docker Desktop running
 
 ### 2. Choose Your Environment
+
 Navigate to the appropriate folder (`nodejs/` or `dotnet/`) and follow the README instructions.
 
 ### 3. SSH Keys Setup (Optional but Recommended)
@@ -45,7 +92,7 @@ For Git operations and SSH access, set up SSH keys:
 cp ./nodejs/.ssh-keys-template.example ./nodejs/.ssh-keys-template
 # Edit ./nodejs/.ssh-keys-template with your SSH keys
 ./nodejs/setup-ssh-dotenv.sh
-```
+
 
 ### 4. Open in Container
 
@@ -82,12 +129,14 @@ DevContainer/
 ## Security Features
 
 ### SSH Key Management
+
 - **Safe Templates:** `.ssh-keys-template.example` files contain only placeholder text and are safe to commit
 - **Secure Usage:** Real SSH keys go in `.ssh-keys-template` files that are automatically ignored by git
 - **Automatic Cleanup:** Template files with real keys are deleted after processing for security
 
 ### Environment Isolation
-- Each environment has its own `.env` file with base64-encoded SSH keys
+
+- Each environment uses an `.env` file in its root folder (e.g. `nodejs/.env`) with base64-encoded SSH keys and optional git identity variables
 - All sensitive files (`.env`, `.ssh-keys-template`) are in `.gitignore`
 - Containers run with non-root users for security
 
@@ -123,17 +172,20 @@ git status --ignored
 ## Troubleshooting
 
 ### Container Won't Build
+
 1. Ensure Docker Desktop is running
 2. Check available disk space
 3. Try rebuilding without cache: "Dev Containers: Rebuild Container (No Cache)"
 
 ### SSH Keys Issues
+
 1. Verify your SSH keys exist: `ls -la ~/.ssh/`
 2. Copy the template: `cp ./<env>/.ssh-keys-template.example ./<env>/.ssh-keys-template`
 3. Edit the template with your actual keys
 4. Run the setup script: `./<env>/setup-ssh-dotenv.sh`
 
 ### Extensions Not Loading
+
 1. Check you're connected to the container (green status bar in VS Code)
 2. Reload window: `Ctrl+Shift+P` → "Developer: Reload Window"
 

@@ -34,6 +34,11 @@
 
 	// Load environment variables from .env file with base64 encoded SSH keys
 	"runArgs": ["--env-file", "dotnet/.env"],
+
+	// Shared persistent workspaces volume
+	"mounts": [
+		"source=devcontainer-shared-workspaces,target=/home/vscode/workspaces,type=volume"
+	],
 	
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "/tmp/post-create-setup.sh",

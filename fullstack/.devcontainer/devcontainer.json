@@ -40,6 +40,11 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	"forwardPorts": [5000, 5001, 8000, 1433],
 
+	// Shared persistent workspaces volume (user likely 'vscode' or container user for service 'app')
+	"mounts": [
+		"source=devcontainer-shared-workspaces,target=/home/vscode/workspaces,type=volume"
+	],
+
     // Post create commands to run after the container is created.
 	"postCreateCommand": "bash .devcontainer/sql/postCreateCommand.sh 'database/Library/bin/Debug'",
 
