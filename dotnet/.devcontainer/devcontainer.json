@@ -10,6 +10,10 @@
 		"ghcr.io/devcontainers/features/dotnet:2": {
 			"version": "8.0",
 			"additionalVersions": "6.0,7.0"
+		},
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+			"version": "latest",
+			"enableNonRootDocker": "true"
 		}
 	},
 	// Configure tool-specific properties
@@ -34,6 +38,11 @@
 
 	// Load environment variables from .env file with base64 encoded SSH keys
 	"runArgs": ["--env-file", "dotnet/.env"],
+
+	// Container environment variables
+	"containerEnv": {
+		"DOCKER_HOST": "tcp://host.docker.internal:2375"
+	},
 
 	// Shared persistent workspaces volume
 	"mounts": [

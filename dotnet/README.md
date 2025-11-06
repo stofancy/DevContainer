@@ -87,6 +87,7 @@ PUBLIC_KEY="ssh-rsa your_public_key_content_here your_email@example.com"
 ### .NET Development Stack
 - .NET 8.0 SDK (latest)
 - .NET 6.0 and 7.0 runtimes for compatibility
+- Docker client with host Docker Desktop integration
 - Global tools:
   - Entity Framework Core CLI (`dotnet-ef`)
   - ASP.NET Core code generator (`dotnet-aspnet-codegenerator`)

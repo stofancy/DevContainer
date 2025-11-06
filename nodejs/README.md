@@ -94,6 +94,7 @@ PUBLIC_KEY="ssh-rsa your_public_key_content_here your_email@example.com"
 
 - Node.js 22 LTS via devcontainers base image
 - npm, yarn (via npm), pnpm installed globally
+- Docker client with host Docker Desktop integration
 - Fish shell with Fisher plugin manager and core plugins (autopair, z navigation, bobthefish theme)
 - Git tooling: delta (diff viewer), lazygit (TUI), GitHub CLI, git-extras
 - Shared persistent volume mounted at `/home/node/workspaces` (named `devcontainer-shared-workspaces`)

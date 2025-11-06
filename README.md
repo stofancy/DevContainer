@@ -51,7 +51,51 @@ To remove (will delete all shared data):
 docker volume rm devcontainer-shared-workspaces
 ```
 
-To back up:
+### 🐳 Docker Client Support
+
+All devcontainers include Docker client support and are configured to connect to your host Docker Desktop instance. This allows you to build, run, and manage Docker containers from within the development environment.
+
+**Prerequisites:**
+
+- Docker Desktop must be running on your host machine
+- Enable "Expose daemon on tcp://localhost:2375 without TLS" in Docker Desktop settings:
+  1. Open Docker Desktop
+  2. Go to Settings → General → Advanced
+  3. Check "Expose daemon on tcp://localhost:2375 without TLS"
+  4. Apply & Restart Docker Desktop
+
+**Features:**
+
+- Full Docker CLI available in all containers
+- Docker Compose support
+- Container builds and management
+- Image operations (pull, push, tag, etc.)
+- Network and volume management
+
+**Usage Examples:**
+
+```bash
+# Test Docker connectivity
+docker version
+
+# Build a Docker image
+docker build -t myapp .
+
+# Run containers
+docker run -d -p 3000:3000 myapp
+
+# Use Docker Compose
+docker-compose up -d
+
+# List running containers
+docker ps
+```
+
+**Security Note:** The TCP connection is unencrypted. Only enable this setting in trusted development environments.
+
+## Quick Setup
+
+To back up the shared workspaces volume:
 
 ```bash
 docker run --rm -v devcontainer-shared-workspaces:/data -v "$PWD":/backup alpine tar -czf /backup/workspaces-backup.tgz -C /data .

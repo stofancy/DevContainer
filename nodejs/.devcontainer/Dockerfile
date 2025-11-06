@@ -71,10 +71,6 @@ RUN fish -c "fisher install jhillyerd/plugin-git" || true
 # Install additional useful plugins
 RUN fish -c "fisher install franciscolourenco/done" || true
 RUN fish -c "fisher install PatrickF1/fzf.fish" || true
-# Install bass for bash compatibility (needed for NVM)
-RUN fish -c "fisher install edc/bass" || true
-# Install nvm plugin for Fish with npm abbreviations
-RUN fish -c "fisher install jorgebucaran/nvm.fish" || true
 
 # Install additional package managers
 USER root
