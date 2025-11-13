@@ -104,6 +104,7 @@ cp ./nodejs/.ssh-keys-template.example ./nodejs/.ssh-keys-template
 ## Project Structure
 
 ```
+```
 DevContainer/
 ├── nodejs/                     # Node.js development environment
 │   ├── .ssh-keys-template.example  # Safe SSH template (committed)
@@ -124,6 +125,7 @@ DevContainer/
 ├── quick-setup.sh             # Quick SSH template setup
 ├── .gitignore                 # Git ignore rules
 └── README.md                  # This file
+```
 
 ## Security Features
 
