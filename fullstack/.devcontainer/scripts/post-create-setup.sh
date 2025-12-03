@@ -139,23 +139,23 @@ setup_nodejs() {
     # shellcheck source=/dev/null
     source "$NVM_DIR/nvm.sh"
     
-    # Install Node.js 22 LTS
-    log_info "Installing Node.js 22 LTS (Jod)..."
-    if ! nvm install 22 --lts --latest-npm; then
-        log_error "Failed to install Node.js 22 LTS"
+    # Install Node.js 24 LTS
+    log_info "Installing Node.js 24 LTS (Jod)..."
+    if ! nvm install 24 --lts --latest-npm; then
+        log_error "Failed to install Node.js 24 LTS"
         return 1
     fi
-    log_success "Node.js 22 LTS installed"
+    log_success "Node.js 24 LTS installed"
     
-    # Set Node.js 22 as the default version
-    log_info "Setting Node.js 22 LTS as default..."
-    if ! nvm alias default 22; then
-        log_error "Failed to set Node.js 22 as default"
+    # Set Node.js 24 as the default version
+    log_info "Setting Node.js 24 LTS as default..."
+    if ! nvm alias default 24; then
+        log_error "Failed to set Node.js 24 as default"
         return 1
     fi
     
     if ! nvm use default; then
-        log_error "Failed to use Node.js 22 as current version"
+        log_error "Failed to use Node.js 24 as current version"
         return 1
     fi
     
