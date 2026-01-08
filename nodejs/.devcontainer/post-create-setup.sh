@@ -127,13 +127,16 @@ chown -R node:node "$WORKSPACES_DIR" || true
 echo "✅ Shared workspaces available at $WORKSPACES_DIR"
 
 echo "🔧 Configuring global git identity..."
-GIT_NAME="${GIT_USER_NAME:-${NPM_IDENT:-DevContainer User}}"
-GIT_EMAIL="${GIT_USER_EMAIL:-devcontainer@example.invalid}"
-git config --global user.name "$GIT_NAME"
-git config --global user.email "$GIT_EMAIL"
-git config --global init.defaultBranch main
-git config --global pull.rebase false
-git config --global core.pager "delta"
-git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
-echo "✅ Git identity set to: $GIT_NAME <$GIT_EMAIL>"
+if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
+    git config --global user.name "$GIT_USER_NAME"
+    git config --global user.email "$GIT_USER_EMAIL"
+    git config --global init.defaultBranch main
+    git config --global pull.rebase false
+    git config --global core.pager "delta"
+    git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+    echo "✅ Git identity set to: $GIT_USER_NAME <$GIT_USER_EMAIL>"
+else
+    echo "⚠️ GIT_USER_NAME and GIT_USER_EMAIL not set. Skipping git identity configuration."
+    echo "   Set these environment variables to configure git: GIT_USER_NAME, GIT_USER_EMAIL"
+fi
 echo "  ⚡ Modern development environment ready!"
