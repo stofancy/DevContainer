@@ -35,16 +35,12 @@
     }
   },
 
-  // Load environment variables from .env file with base64 encoded SSH keys.
-  // The previous relative reference (../.env) pointed outside the build context when running the container.
-  // Use a path relative to the workspace root that exists: the .env file is located at c:\workspace\DevContainers\nodejs\.env.
-  // Dev Containers CLI starts the container with /workspaces/DevContainers as mount for the parent folder; our target file is one level deeper.
-  // Provide a defensive check via an entry script if needed instead of failing hard. Here we reference the correct path.
+  // Load .env file if it exists (for SSH keys, tokens, etc.)
+  // See README.md for details on setting up .env file
   "runArgs": ["--env-file", ".env"],
 
-  // If you prefer optional env loading, comment the line above and use postCreateCommand logic to source it conditionally.
-
-  // Forward selected environment variables from host to container
+  // Forward host environment variables to container
+  // Set these in your host shell (export GIT_USER_NAME="...") or in .env file
   "containerEnv": {
     "NPM_TOKEN": "${localEnv:NPM_TOKEN}",
     "NUGET_PAT": "${localEnv:NUGET_PAT}",
@@ -52,15 +48,15 @@
     "DOCKER_HOST": "tcp://host.docker.internal:2375"
   },
 
-  // Persist ~/workspaces folder using a Docker volume
+  // Persist ~/workspaces folder using a Docker volume (shared across all stacks)
   "mounts": [
     "source=devcontainer-shared-workspaces,target=/home/node/workspaces,type=volume"
   ],
 
-  // One-time ownership fix when the dev container is first created (not on every reopen).
-  "onCreateCommand": "echo '🔧 Setting ownership of workspace folders (first run)...' && sudo chown -R node:node /workspaces /home/node/workspaces || true && echo '✅ Ownership set.'",
+  // Set folder ownership on first container creation
+  "onCreateCommand": "echo '🔧 Setting ownership...' && sudo chown -R node:node /workspaces /home/node/workspaces || true && echo '✅ Done.'",
 
-  // Use 'postCreateCommand' to run commands after the container is created.
+  // Run setup script after container creation (sets up SSH, Git, NVM, etc.)
   "postCreateCommand": "/tmp/post-create-setup.sh",
 
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.

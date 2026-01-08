@@ -1,28 +1,43 @@
 #!/bin/bash
-# setup-ssh-dotenv.sh - Script to create .env file with SSH keys for dev container
+# setup-ssh-dotenv.sh - Create .env file with SSH keys for Node.js dev container
+# 
+# Usage:
+#   ./.devcontainer/setup-ssh-dotenv.sh [--help]
+#
+# This script reads SSH keys from a template file, base64-encodes them,
+# and creates a .env file for the dev container.
 
-ENV_FILE_PATH="./nodejs/.env"
-TEMPLATE_FILE="./nodejs/.ssh-keys-template"
-EXAMPLE_FILE="./nodejs/.ssh-keys-template.example"
+set -e
 
-echo "🔑 SSH Keys Setup for Dev Container"
-echo "=================================="
+# Paths relative to the repository root
+ENV_FILE_PATH="./.devcontainer/.env"
+TEMPLATE_FILE="./.devcontainer/.ssh-keys-template"
+EXAMPLE_FILE="./.devcontainer/.ssh-keys-template.example"
+
+echo "🔑 SSH Keys Setup for Node.js Dev Container"
+echo "============================================"
 echo ""
 
 # Function to show help
 show_help() {
     echo "Usage: $0 [--help]"
     echo ""
-    echo "This script creates a .env file with base64-encoded SSH keys from a template file."
+    echo "Sets up SSH keys in a .env file for use in the Node.js dev container."
     echo ""
-    echo "Steps:"
-    echo "1. Copy the example template: cp ./nodejs/.ssh-keys-template.example ./nodejs/.ssh-keys-template"
-    echo "2. Edit ./nodejs/.ssh-keys-template with your SSH keys"
-    echo "3. Run this script to generate the .env file"
-    echo "4. The template file will be automatically deleted for security"
+    echo "Quick Start:"
+    echo "  1. cp ./.devcontainer/.ssh-keys-template.example ./.devcontainer/.ssh-keys-template"
+    echo "  2. Edit ./.devcontainer/.ssh-keys-template with your SSH keys"
+    echo "  3. Run: ./.devcontainer/setup-ssh-dotenv.sh"
+    echo "  4. Rebuild container: Ctrl+Shift+P → 'Dev Containers: Rebuild Container'"
     echo ""
     echo "Options:"
-    echo "  --help            Show this help message"
+    echo "  --help              Show this help message"
+    echo ""
+    echo "Details:"
+    echo "  • Reads SSH keys from ./.devcontainer/.ssh-keys-template"
+    echo "  • Base64-encodes them for safe storage in .env"
+    echo "  • Creates ./.devcontainer/.env (automatically git-ignored)"
+    echo "  • Deletes .ssh-keys-template for security"
 }
 
 # Function to setup from template file
@@ -30,67 +45,66 @@ setup_from_template() {
     if [[ ! -f "$TEMPLATE_FILE" ]]; then
         echo "❌ Template file not found: $TEMPLATE_FILE"
         echo ""
-        if [[ -f "$EXAMPLE_FILE" ]]; then
-            echo "💡 Please create the template file from the example:"
-            echo "   1. Copy the example: cp $EXAMPLE_FILE $TEMPLATE_FILE"
-            echo "   2. Edit $TEMPLATE_FILE with your actual SSH keys"
-            echo "   3. Run this script again"
-        else
-            echo "💡 Please create the template file first:"
-            echo "   1. Copy the provided template to: $TEMPLATE_FILE"
-            echo "   2. Edit it with your actual SSH keys"
-            echo "   3. Run this script again"
-        fi
+        echo "📝 Create it with:"
+        echo "   cp $EXAMPLE_FILE $TEMPLATE_FILE"
         echo ""
-        echo "Template content should look like:"
-        echo "   PRIVATE_KEY=\"-----BEGIN OPENSSH PRIVATE KEY-----"
-        echo "   your_private_key_content_here"
-        echo "   -----END OPENSSH PRIVATE KEY-----\""
+        echo "📖 Then edit $TEMPLATE_FILE:"
+        echo "   • Replace YOUR_PRIVATE_KEY_CONTENT_GOES_HERE with your private key (from ~/.ssh/id_rsa)"
+        echo "   • Replace YOUR_PUBLIC_KEY_CONTENT_GOES_HERE with your public key (from ~/.ssh/id_rsa.pub)"
+        echo "   • Keep the BEGIN/END lines and format intact"
         echo ""
-        echo "   PUBLIC_KEY=\"ssh-rsa your_public_key_here your_email@example.com\""
+        echo "🚀 Then run this script again:"
+        echo "   $0"
         return 1
     fi
     
-    echo "📁 Loading keys from template file: $TEMPLATE_FILE"
+    echo "📁 Reading keys from: $TEMPLATE_FILE"
     
-    # Source the template file to get the variables
-    source "$TEMPLATE_FILE"
+    # Source the template file (reads PRIVATE_KEY and PUBLIC_KEY variables)
+    # shellcheck source=/dev/null
+    source "$TEMPLATE_FILE" 2>/dev/null || {
+        echo "❌ Failed to read template file"
+        return 1
+    }
     
-    # Check if keys were provided
+    # Validate keys aren't still placeholder text
     if [[ "$PRIVATE_KEY" == *"YOUR_PRIVATE_KEY_CONTENT_GOES_HERE"* ]]; then
-        echo "❌ Please replace the placeholder text in $TEMPLATE_FILE with your actual private key"
-        echo "💡 Your private key is typically in ~/.ssh/id_rsa"
+        echo "❌ Error: Private key still contains placeholder text"
+        echo "💡 Edit $TEMPLATE_FILE and replace the placeholder with your actual key"
         return 1
     fi
     
     if [[ "$PUBLIC_KEY" == *"YOUR_PUBLIC_KEY_CONTENT_GOES_HERE"* ]]; then
-        echo "❌ Please replace the placeholder text in $TEMPLATE_FILE with your actual public key"
-        echo "💡 Your public key is typically in ~/.ssh/id_rsa.pub"
+        echo "❌ Error: Public key still contains placeholder text"
+        echo "💡 Edit $TEMPLATE_FILE and replace the placeholder with your actual key"
         return 1
     fi
     
-    # Basic validation
+    # Validate both keys are present
     if [[ -z "$PRIVATE_KEY" || -z "$PUBLIC_KEY" ]]; then
-        echo "❌ Error: Both PRIVATE_KEY and PUBLIC_KEY variables must be set in $TEMPLATE_FILE"
+        echo "❌ Error: PRIVATE_KEY or PUBLIC_KEY is empty in $TEMPLATE_FILE"
         return 1
     fi
     
-    if [[ ! "$PRIVATE_KEY" =~ "BEGIN" ]]; then
-        echo "❌ Error: Private key doesn't look valid (missing BEGIN header)"
+    # Validate key format
+    if [[ ! "$PRIVATE_KEY" =~ "BEGIN".*"END" ]]; then
+        echo "❌ Error: Private key doesn't look valid (missing BEGIN/END headers)"
         return 1
     fi
     
     if [[ ! "$PUBLIC_KEY" =~ ^ssh- ]]; then
-        echo "❌ Error: Public key doesn't look valid (should start with ssh-)"
+        echo "❌ Error: Public key doesn't look valid (should start with 'ssh-')"
         return 1
     fi
+    
+    echo "✅ Keys look valid!"
     
     PRIVATE_KEY_CONTENT="$PRIVATE_KEY"
     PUBLIC_KEY_CONTENT="$PUBLIC_KEY"
     
-    # Cleanup template file immediately for security
+    # Delete template file for security
     rm -f "$TEMPLATE_FILE"
-    echo "🗑️  Template file removed for security"
+    echo "🗑️  Removed template file for security"
     
     return 0
 }
@@ -115,31 +129,27 @@ case "$1" in
         ;;
 esac
 
-# Encode to base64
-echo "🔄 Encoding keys to base64..."
+# Encode to base64 and create .env file
+echo "🔄 Base64-encoding SSH keys..."
 PRIVATE_KEY_B64=$(echo "$PRIVATE_KEY_CONTENT" | base64 -w 0)
 PUBLIC_KEY_B64=$(echo "$PUBLIC_KEY_CONTENT" | base64 -w 0)
 
-# Create .env file content with base64 encoded keys
+echo "📝 Creating .env file..."
 {
-    echo "# SSH Keys for Dev Container (Base64 Encoded)"
-    echo "# Auto-generated by setup-ssh-dotenv.sh"
-    echo "# DO NOT EDIT MANUALLY - Use the setup script to update"
+    echo "# SSH Keys for Node.js Dev Container (Auto-generated)"
+    echo "# DO NOT EDIT - use setup-ssh-dotenv.sh to update"
     echo "SSH_PRIVATE_KEY_B64=$PRIVATE_KEY_B64"
     echo "SSH_PUBLIC_KEY_B64=$PUBLIC_KEY_B64"
 } > "$ENV_FILE_PATH"
 
+chmod 600 "$ENV_FILE_PATH"
+
 echo ""
 echo "✅ SSH .env file created successfully!"
 echo "📁 Location: $ENV_FILE_PATH"
-echo "🔒 The .env file contains your SSH keys and should be kept secure."
-echo "📋 The .env file is already in .gitignore to prevent accidental commits."
 echo ""
-echo "🚀 Next steps:"
-echo "1. Rebuild your dev container:"
-echo "   • Press Ctrl+Shift+P (Cmd+Shift+P on Mac)"
-echo "   • Type 'Dev Containers: Rebuild Container'"
-echo "   • Select it and wait for the rebuild to complete"
-echo "2. Your SSH keys will be automatically available in the container"
+echo "🚀 Next Step: Rebuild the dev container"
+echo "   Ctrl+Shift+P → 'Dev Containers: Rebuild Container'"
 echo ""
-echo "📖 See README.md for more information."
+echo "Your SSH keys will be available inside the container automatically."
+echo "Verify with: ssh-add -l"

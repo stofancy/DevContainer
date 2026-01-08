@@ -1,26 +1,22 @@
 # SSH Keys Template for Node.js Dev Container
-# This is a DEMO template file - copy it to .ssh-keys-template and edit with real keys
+# 
+# IMPORTANT: This is a SAFE EXAMPLE FILE - safe to commit to git
+# Copy to .ssh-keys-template and edit with your REAL keys
+#
+# To use:
+#   1. Copy this file: cp .ssh-keys-template.example .ssh-keys-template
+#   2. Edit .ssh-keys-template with your actual SSH keys
+#   3. Run: ./.devcontainer/setup-ssh-dotenv.sh
+#   4. Rebuild container: Ctrl+Shift+P → "Dev Containers: Rebuild Container"
 
-# Private Key (include the full content with BEGIN/END lines):
+# Your private SSH key (include BEGIN and END lines)
+# Get yours with: cat ~/.ssh/id_rsa
 PRIVATE_KEY="-----BEGIN OPENSSH PRIVATE KEY-----
 YOUR_PRIVATE_KEY_CONTENT_GOES_HERE
-REPLACE_THIS_WITH_YOUR_ACTUAL_PRIVATE_KEY_FROM_~/.ssh/id_rsa
-MAKE_SURE_TO_INCLUDE_ALL_LINES_INCLUDING_THE_HEADERS
+REPLACE_THIS_WITH_YOUR_ACTUAL_PRIVATE_KEY
+INCLUDE_ALL_LINES_INCLUDING_BEGIN_AND_END
 -----END OPENSSH PRIVATE KEY-----"
 
-# Public Key (single line):
-PUBLIC_KEY="ssh-rsa YOUR_PUBLIC_KEY_CONTENT_GOES_HERE your_email@example.com"
-
-# Instructions:
-# 1. Copy this file to .ssh-keys-template: cp .ssh-keys-template.example .ssh-keys-template
-# 2. Edit .ssh-keys-template with your actual SSH keys (from ~/.ssh/id_rsa and ~/.ssh/id_rsa.pub)
-# 3. Replace YOUR_PRIVATE_KEY_CONTENT_GOES_HERE with your actual private key content
-# 4. Replace YOUR_PUBLIC_KEY_CONTENT_GOES_HERE with your actual public key
-# 5. Replace your_email@example.com with your actual email
-# 6. Run: ./nodejs/setup-ssh-dotenv.sh
-# 7. The .ssh-keys-template file will be automatically deleted for security after processing
-
-# Security Notes:
-# - Never commit .ssh-keys-template with real keys to git
-# - This .ssh-keys-template.example file is safe to commit (contains no real keys)
-# - The .ssh-keys-template file is ignored by git for security
+# Your public SSH key (single line)
+# Get yours with: cat ~/.ssh/id_rsa.pub
+PUBLIC_KEY="ssh-rsa YOUR_PUBLIC_KEY_CONTENT_GOES_HERE your.email@example.com"

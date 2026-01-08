@@ -1,182 +1,158 @@
 # Node.js Dev Container
 
-This dev container provides a fully configured Node.js development environment with modern shell (Fish), shared persistent workspace volume, and automated Git identity configuration.
+Quick, automated development environment with Node.js 22, modern tools, and VS Code integration.
 
-## Quick Start Guide
+## ⚡ Quick Start
 
-### 1. Prerequisites
-
-- VS Code with the Dev Containers extension installed
-- Docker Desktop running on your machine
-
-### 2. Build and Open Dev Container
-
-#### Option A: Command Palette (Recommended)
-
-1. Open VS Code in this workspace folder
-2. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
-3. Type "Dev Containers: Rebuild and Reopen in Container"
-4. Select it and wait for the container to build
-
-#### Option B: Notification Popup
-
-1. Open VS Code in this workspace folder
-2. VS Code should show a popup asking "Reopen in Container"
-3. Click "Reopen in Container"
-
-#### Option C: Status Bar
-
-1. Open VS Code in this workspace folder
-2. Click the green status bar item in the bottom-left corner
-3. Select "Reopen in Container"
-
-### 3. First Build
-
-The first build will take a few minutes as it downloads and sets up:
-
-- Node.js environment
-- Development tools
-- VS Code extensions
-
-## SSH Keys Setup
-
-To use SSH keys for Git operations and other SSH-based tasks in the dev container:
-
-### Simple Template-Based Setup
-
-1. **Copy and edit the template file** with your SSH keys:
-
-   ```bash
-   # Copy the example template
-   cp ./nodejs/.ssh-keys-template.example ./nodejs/.ssh-keys-template
-   
-   # Edit this file with your actual SSH keys
-   # Your keys are typically in ~/.ssh/id_rsa and ~/.ssh/id_rsa.pub
-   ./nodejs/.ssh-keys-template
-   ```
-
-2. **Run the setup script**:
-
-   ```bash
-   ./nodejs/setup-ssh-dotenv.sh
-   ```
-
-3. **Rebuild your dev container**:
-   - Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
-   - Type "Dev Containers: Rebuild Container"
-   - Select it and wait for completion
-
-### Template File Format
-
-The `.ssh-keys-template` file should contain:
-
+### Option A: No SSH (3-5 min)
 ```bash
-# Private Key (including BEGIN/END lines):
-PRIVATE_KEY="-----BEGIN OPENSSH PRIVATE KEY-----
-your_private_key_content_here
------END OPENSSH PRIVATE KEY-----"
-
-# Public Key (single line):
-PUBLIC_KEY="ssh-rsa your_public_key_content_here your_email@example.com"
+Ctrl+Shift+P → "Dev Containers: Rebuild and Reopen in Container"
+# Wait for build... Done!
 ```
 
-**Note:** Copy from `.ssh-keys-template.example` to get started, then replace the placeholder content with your actual SSH keys.
-
-### Security Notes
-
-- Copy `.ssh-keys-template.example` to `.ssh-keys-template` and edit with your real keys
-- The template file `.ssh-keys-template` is automatically deleted after processing for security
-- SSH keys are base64-encoded before being stored in the `.env` file
-- The `.env` file is already in `.gitignore` to prevent accidental commits
-- The `.ssh-keys-template` file is also in `.gitignore` to prevent committing real SSH keys
-
-## What's Included
-
-- Node.js 22 LTS via devcontainers base image
-- npm, yarn (via npm), pnpm installed globally
-- Docker client with host Docker Desktop integration
-- Fish shell with Fisher plugin manager and core plugins (autopair, z navigation, bobthefish theme)
-- Git tooling: delta (diff viewer), lazygit (TUI), GitHub CLI, git-extras
-- Shared persistent volume mounted at `/home/node/workspaces` (named `devcontainer-shared-workspaces`)
-- Automatic Git identity configuration via `.env` values `GIT_USER_NAME`, `GIT_USER_EMAIL`
-- SSH client with automatic key setup
-- ESLint & Prettier ready to use
-- VS Code recommended extensions installed automatically
-
-## Shared Workspaces Volume
-
-A named Docker volume `devcontainer-shared-workspaces` is mounted at `/home/node/workspaces` so data remains across container rebuilds and can be shared with other stacks (.NET, fullstack). Place repos or cross-project assets there if you want persistence across environments.
-
-To list its contents from host:
-
+### Option B: With SSH (4-6 min)
 ```bash
-docker run --rm -v devcontainer-shared-workspaces:/data alpine ls -la /data | head
+cp .devcontainer/.ssh-keys-template.example .devcontainer/.ssh-keys-template
+# Edit template with your SSH keys from ~/.ssh/id_rsa and ~/.ssh/id_rsa.pub
+.devcontainer/setup-ssh-dotenv.sh
+Ctrl+Shift+P → "Dev Containers: Rebuild Container"
 ```
 
-To back it up:
-
+### Start Coding
 ```bash
-docker run --rm -v devcontainer-shared-workspaces:/data -v "$PWD":/backup alpine tar -czf /backup/workspaces-backup.tgz -C /data .
+node --version          # Verify Node.js 22
+npm install <package>   # Install dependencies
+npm start              # Start your app
 ```
 
-## Git Identity Configuration
+---
 
-Set your identity in `.devcontainer/.env` before (re)building:
+## 📦 What's Included
 
-```bash
-GIT_USER_NAME="Parker An"
-GIT_USER_EMAIL="parker.an@serko.com"
-```
-If unset, falls back to `NPM_IDENT` or a generic placeholder. Adjust at any time:
+Node.js 22 LTS, npm, yarn, pnpm, NVM, Fish shell with plugins (z, fzf, autopair), git tools (delta, lazygit, GitHub CLI), Docker client, ESLint, Prettier, Vim, VS Code extensions (Prettier, ESLint, GitLens, Copilot).
 
-```bash
-git config --global user.name "New Name"
-git config --global user.email "new.email@example.com"
-```
+---
 
-Delta is configured as pager; view a graph log:
+## 📖 Common Commands
 
 ```bash
-git lg
+# Node versions
+nvm list                    # Show installed versions
+nvm install 20              # Install version 20
+nvm use 20                  # Switch version
+
+# Git
+git clone <repo>
+git lg                      # Pretty log
+lg                          # Open lazygit UI
+gh pr create                # Create PR
+
+# Package managers
+npm install <pkg>
+yarn add <pkg>
+pnpm add <pkg>
+
+# Search & navigation
+fzf                         # Find files
+z <dir>                     # Jump to directory
+
+# Docker
+docker build -t my-img .
+docker ps
 ```
 
-## Troubleshooting
+---
 
-### Container Won't Build
+## ⚙️ Environment Configuration
 
-1. Make sure Docker Desktop is running
-2. Check if you have sufficient disk space
-3. Try rebuilding without cache: `Ctrl+Shift+P` → "Dev Containers: Rebuild Container (No Cache)"
-4. Error `docker: open ../.env: The system cannot find the file specified.` means the env-file path was wrong. Ensure `.env` exists at `./nodejs/.env` (workspace root) or remove the `runArgs` env-file entry from `devcontainer.json` if you don't need it.
+### Option 1: Using `.env` File (Simple)
 
-### SSH Keys Not Working
-
-1. Ensure SSH keys exist on your host machine (`~/.ssh/id_rsa` and `~/.ssh/id_rsa.pub`)
-2. Run the setup script: `./nodejs/setup-ssh-dotenv.sh`
-3. Rebuild the container after creating the `.env` file
-
-### Extensions Not Loading
-
-1. Make sure you're connected to the container (check the green status bar)
-2. Extensions are automatically installed during container creation
-3. If missing, reload the window: `Ctrl+Shift+P` → "Developer: Reload Window"
-
-## Manual Commands
-
-If you prefer using the command line:
-
+Create `.devcontainer/.env` for git identity and npm tokens:
 ```bash
-# Build the devcontainer image manually (normally VS Code handles this)
-docker build -f nodejs/.devcontainer/Dockerfile -t nodejs-devcontainer nodejs/.devcontainer
-
-# Run with shared workspace volume
-docker run -it --rm \
-   -v devcontainer-shared-workspaces:/home/node/workspaces \
-   -v "$(pwd)":/workspace nodejs-devcontainer fish
-
-# Run with env file (if present)
-docker run -it --rm \
-   --env-file nodejs/.env \
-   -v devcontainer-shared-workspaces:/home/node/workspaces \
-   -v "$(pwd)":/workspace nodejs-devcontainer fish
+GIT_USER_NAME="Your Name"
+GIT_USER_EMAIL="your@email.com"
+NPM_TOKEN="your_npm_token"
 ```
+
+The `.env` file is:
+- Automatically loaded by container
+- Git-ignored (safe to store secrets)
+- Read by post-create-setup.sh script
+
+**Note:** SSH keys are NOT added here. Use the SSH Setup process below.
+
+### Option 2: Using Host Environment Variables (Advanced)
+
+Add to your host shell (`.bashrc`, `.zshrc`, `.env`, etc.):
+```bash
+export GIT_USER_NAME="Your Name"
+export GIT_USER_EMAIL="your@email.com"
+export NPM_TOKEN="your_npm_token"
+```
+
+Then they're automatically forwarded to the container (see `containerEnv` in `devcontainer.json`).
+
+**Note:** SSH keys are NOT set this way. Use the SSH Setup process below.
+
+---
+
+## 🔐 SSH Setup (Only via Script)
+
+SSH keys MUST be set up using the automatic setup process:
+
+### Automatic SSH Setup (Recommended)
+```bash
+# 1. Copy template
+cp .devcontainer/.ssh-keys-template.example .devcontainer/.ssh-keys-template
+
+# 2. Edit with your SSH keys
+# ~/.ssh/id_rsa → PRIVATE_KEY
+# ~/.ssh/id_rsa.pub → PUBLIC_KEY
+
+# 3. Run script (creates .env, deletes template)
+.devcontainer/setup-ssh-dotenv.sh
+
+# 4. Rebuild container
+Ctrl+Shift+P → "Dev Containers: Rebuild Container"
+```
+
+This script:
+- Reads SSH keys from template file
+- Base64-encodes them automatically
+- Writes SSH_PRIVATE_KEY_B64 and SSH_PUBLIC_KEY_B64 to `.env`
+- Deletes template file (security)
+- post-create-setup.sh decodes and sets up SSH automatically
+
+**Do NOT manually add SSH keys to .env - use the script!**
+
+---
+
+## 🆘 Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| **Build fails** | Docker Desktop running? 4GB+ disk space free? Try rebuild without cache: `Ctrl+Shift+P` → "Dev Containers: Rebuild Container (No Cache)" |
+| **SSH not working** | Did you use setup-ssh-dotenv.sh? Rebuild container, verify: `ssh-add -l` |
+| **Extensions missing** | Verify connected to container (green indicator, bottom-left), reload: `Ctrl+Shift+P` → "Developer: Reload Window" |
+| **Docker fails** | Docker Desktop running? Test: `docker ps`. Check Docker Settings → Advanced → "Expose daemon on tcp://localhost:2375 without TLS" |
+| **Git user not set** | Did you create .env or set host variables? Check GIT_USER_NAME and GIT_USER_EMAIL |
+| **NPM auth fails** | Did you set NPM_TOKEN in .env or host environment? |
+
+---
+
+## 📁 Shared Workspaces (Optional)
+
+Files in `/home/node/workspaces` persist across rebuilds:
+```bash
+cd ~/workspaces
+# Clone repos or projects here to keep them safe
+```
+
+---
+
+## 🔗 More Help
+
+- Dev Containers: https://containers.dev/
+- Node.js: `node --version`
+- Fish shell: `fish_help` (inside container)
+- GitHub CLI: `gh help`
