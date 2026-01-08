@@ -20,9 +20,9 @@ Ctrl+Shift+P → "Dev Containers: Rebuild Container"
 
 ### Start Coding
 ```bash
-node --version          # Verify Node.js 22
+git clone <repo_url>    # Clone your project
 npm install <package>   # Install dependencies
-npm start              # Start your app
+npm start               # Start your app
 ```
 
 ---
@@ -43,9 +43,13 @@ nvm use 20                  # Switch version
 
 # Git
 git clone <repo>
-git lg                      # Pretty log
+gloo                        # Pretty log
 lg                          # Open lazygit UI
 gh pr create                # Create PR
+gapa                        # alia of `git add --patch`
+ggp                         # alias of `git push $(git_current_branch)`
+ggl                         # alias of `git pull origin $(git_current_branch)`
+tig                         # Interactive git commit browser
 
 # Package managers
 npm install <pkg>
@@ -73,7 +77,6 @@ GIT_USER_NAME="Your Name"
 GIT_USER_EMAIL="your@email.com"
 NPM_TOKEN="your_npm_token"
 ```
-
 The `.env` file is:
 - Automatically loaded by container
 - Git-ignored (safe to store secrets)
@@ -83,14 +86,14 @@ The `.env` file is:
 
 ### Option 2: Using Host Environment Variables (Advanced)
 
-Add to your host shell (`.bashrc`, `.zshrc`, `.env`, etc.):
+Set them in your OS environment settings, then they're automatically forwarded to the container (see `containerEnv` in `devcontainer.json`).
+Or add to your host shell (`.bashrc`, `.zshrc`, `.env`, etc.):
+
 ```bash
 export GIT_USER_NAME="Your Name"
 export GIT_USER_EMAIL="your@email.com"
 export NPM_TOKEN="your_npm_token"
 ```
-
-Then they're automatically forwarded to the container (see `containerEnv` in `devcontainer.json`).
 
 **Note:** SSH keys are NOT set this way. Use the SSH Setup process below.
 
@@ -101,6 +104,7 @@ Then they're automatically forwarded to the container (see `containerEnv` in `de
 SSH keys MUST be set up using the automatic setup process:
 
 ### Automatic SSH Setup (Recommended)
+
 ```bash
 # 1. Copy template
 cp .devcontainer/.ssh-keys-template.example .devcontainer/.ssh-keys-template
@@ -117,6 +121,7 @@ Ctrl+Shift+P → "Dev Containers: Rebuild Container"
 ```
 
 This script:
+
 - Reads SSH keys from template file
 - Base64-encodes them automatically
 - Writes SSH_PRIVATE_KEY_B64 and SSH_PUBLIC_KEY_B64 to `.env`
