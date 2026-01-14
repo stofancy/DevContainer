@@ -10,7 +10,7 @@
 set -e
 
 # Paths relative to the repository root
-ENV_FILE_PATH="./.devcontainer/.env"
+ENV_FILE_PATH="./.env"
 TEMPLATE_FILE="./.devcontainer/.ssh-keys-template"
 EXAMPLE_FILE="./.devcontainer/.ssh-keys-template.example"
 

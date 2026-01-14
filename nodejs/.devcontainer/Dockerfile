@@ -32,13 +32,13 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install modern Git tools
-# Install Delta (better git diff)
+# Install Delta (better git diff) - always latest
 RUN DELTA_VERSION=$(curl -s https://api.github.com/repos/dandavison/delta/releases/latest | grep -Po '"tag_name": "\K.*?(?=")') \
     && curl -sL "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/git-delta_${DELTA_VERSION}_amd64.deb" -o /tmp/git-delta.deb \
     && dpkg -i /tmp/git-delta.deb \
     && rm /tmp/git-delta.deb
 
-# Install Lazygit (git TUI)
+# Install Lazygit (git TUI) - always latest
 RUN LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') \
     && curl -sL "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" | tar -xz -C /usr/local/bin lazygit
 
@@ -71,6 +71,8 @@ RUN fish -c "fisher install jhillyerd/plugin-git" || true
 # Install additional useful plugins
 RUN fish -c "fisher install franciscolourenco/done" || true
 RUN fish -c "fisher install PatrickF1/fzf.fish" || true
+# Ensure bass is available for NVM integration in Fish
+RUN fish -c "fisher install edc/bass" || true
 
 # Install additional package managers
 USER root
@@ -104,6 +106,22 @@ RUN echo '# Fish configuration' > ~/.config/fish/config.fish \
     && echo 'if test -z "$SSH_AUTH_SOCK"' >> ~/.config/fish/config.fish \
     && echo '    eval (ssh-agent -c)' >> ~/.config/fish/config.fish \
     && echo '    ssh-add ~/.ssh/id_rsa 2>/dev/null' >> ~/.config/fish/config.fish \
+    && echo 'end' >> ~/.config/fish/config.fish \
+    && echo '' >> ~/.config/fish/config.fish \
+    && echo '# NVM configuration for Fish' >> ~/.config/fish/config.fish \
+    && echo 'function nvm' >> ~/.config/fish/config.fish \
+    && echo '    bass source ~/.nvm/nvm.sh --no-use ';' nvm $argv' >> ~/.config/fish/config.fish \
+    && echo 'end' >> ~/.config/fish/config.fish \
+    && echo '' >> ~/.config/fish/config.fish \
+    && echo '# Auto-load nvm on Fish start' >> ~/.config/fish/config.fish \
+    && echo 'nvm use default --silent 2>/dev/null' >> ~/.config/fish/config.fish \
+    && echo '' >> ~/.config/fish/config.fish \
+    && echo '# Welcome message' >> ~/.config/fish/config.fish \
+    && echo 'function fish_greeting' >> ~/.config/fish/config.fish \
+    && echo '    echo "🚀 Node.js Dev Container Ready!"' >> ~/.config/fish/config.fish \
+    && echo '    echo "📦 Available package managers: npm, yarn, pnpm"' >> ~/.config/fish/config.fish \
+    && echo '    echo "🔧 Git tools: lazygit (lg), delta diff, GitHub CLI (gh), git aliases via plugin"' >> ~/.config/fish/config.fish \
+    && echo '    echo "🐟 Fish shell with Fisher plugins loaded"' >> ~/.config/fish/config.fish \
     && echo 'end' >> ~/.config/fish/config.fish
 
 # Configure vim with basic settings

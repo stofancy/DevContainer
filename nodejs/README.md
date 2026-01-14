@@ -14,7 +14,7 @@ Ctrl+Shift+P → "Dev Containers: Rebuild and Reopen in Container"
 ```bash
 cp .devcontainer/.ssh-keys-template.example .devcontainer/.ssh-keys-template
 # Edit template with your SSH keys from ~/.ssh/id_rsa and ~/.ssh/id_rsa.pub
-.devcontainer/setup-ssh-dotenv.sh
+.devcontainer/setup-ssh-dotenv.sh   # generates ./.env at the workspace root
 Ctrl+Shift+P → "Dev Containers: Rebuild Container"
 ```
 
@@ -69,9 +69,9 @@ docker ps
 
 ## ⚙️ Environment Configuration
 
-### Option 1: Using `.env` File (Simple)
+### Option 1: Using `.env` file at workspace root (recommended)
 
-Create `.devcontainer/.env` for git identity and npm tokens:
+Create `./.env` for git identity and npm tokens:
 ```bash
 GIT_USER_NAME="Your Name"
 GIT_USER_EMAIL="your@email.com"
@@ -84,10 +84,12 @@ The `.env` file is:
 
 **Note:** SSH keys are NOT added here. Use the SSH Setup process below.
 
-### Option 2: Using Host Environment Variables (Advanced)
+### Option 2: Using host environment variables (advanced)
 
-Set them in your OS environment settings, then they're automatically forwarded to the container (see `containerEnv` in `devcontainer.json`).
-Or add to your host shell (`.bashrc`, `.zshrc`, `.env`, etc.):
+Only variables explicitly mapped in `devcontainer.json` are forwarded (e.g., `NPM_TOKEN`).
+Git identity (`GIT_USER_NAME`, `GIT_USER_EMAIL`) is not forwarded by default; prefer the `./.env` file. If you still want host env, add mappings in `containerEnv`.
+
+You can also export values in your shell, but they will not be visible in the container unless mapped:
 
 ```bash
 export GIT_USER_NAME="Your Name"
@@ -124,7 +126,7 @@ This script:
 
 - Reads SSH keys from template file
 - Base64-encodes them automatically
-- Writes SSH_PRIVATE_KEY_B64 and SSH_PUBLIC_KEY_B64 to `.env`
+- Writes SSH_PRIVATE_KEY_B64 and SSH_PUBLIC_KEY_B64 to `./.env`
 - Deletes template file (security)
 - post-create-setup.sh decodes and sets up SSH automatically
 
@@ -154,6 +156,33 @@ cd ~/workspaces
 ```
 
 ---
+
+## 🧱 Build Args (optional)
+
+Pin or override tool versions used during image build by adding build args in `.devcontainer/devcontainer.json`:
+
+```jsonc
+{
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": {
+			"DELTA_VERSION": "0.16.5",
+			"LAZYGIT_VERSION": "0.41.0"
+		}
+	}
+}
+```
+
+Then rebuild:
+
+```bash
+Ctrl+Shift+P → "Dev Containers: Rebuild Container"
+```
+
+Notes:
+- Node 22 and NVM come from the base image; the post-create script does not install Node.
+- Fish configuration (including NVM integration) is provided by the image.
+
 
 ## 🔗 More Help
 

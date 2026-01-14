@@ -65,77 +65,6 @@ fi
 
 echo "🎉 SSH setup completed!"
 
-echo "📦 Setting up Node.js with NVM..."
-
-# Install NVM if missing
-export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
-if ! command -v nvm >/dev/null 2>&1; then
-    echo "⬇️ Installing NVM..."
-    curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-fi
-
-# Source NVM for current shell
-if [ -s "$NVM_DIR/nvm.sh" ]; then
-    . "$NVM_DIR/nvm.sh"
-fi
-
-# Install Node 22 LTS if not present and set default
-if ! nvm ls 22 >/dev/null 2>&1; then
-    echo "⬇️ Installing Node.js 22 LTS..."
-    nvm install 22 --lts --latest-npm
-fi
-
-# Set default to 22 if not already
-if ! nvm alias default | grep -q "-> 22"; then
-    echo "🔧 Setting Node.js 22 as default..."
-    nvm alias default 22
-fi
-nvm use default >/dev/null 2>&1 || true
-
-echo "📋 Installed Node.js versions:"
-nvm list || true
-
-echo "🐟 Configuring Fish shell for NVM..."
-
-# Ensure 'bass' plugin exists for Fish
-if ! command -v bass >/dev/null 2>&1; then
-    fish -c "fisher install edc/bass" >/dev/null 2>&1 || true
-fi
-
-FISH_CONFIG="$HOME/.config/fish/config.fish"
-mkdir -p "$(dirname "$FISH_CONFIG")"
-touch "$FISH_CONFIG"
-
-# Add NVM function block once
-if ! grep -q "# NVM configuration for Fish" "$FISH_CONFIG"; then
-    fish -c "
-    echo '' >> $FISH_CONFIG
-    echo '# NVM configuration for Fish' >> $FISH_CONFIG
-    echo 'function nvm' >> $FISH_CONFIG
-    echo '    bass source ~/.nvm/nvm.sh --no-use ';' nvm \$argv' >> $FISH_CONFIG
-    echo 'end' >> $FISH_CONFIG
-    echo '' >> $FISH_CONFIG
-    echo '# Auto-load nvm on Fish start' >> $FISH_CONFIG
-    echo 'nvm use default --silent 2>/dev/null' >> $FISH_CONFIG
-    " >/dev/null 2>&1 || true
-fi
-
-# Add greeting block once
-if ! grep -q "# Welcome message" "$FISH_CONFIG"; then
-    fish -c "
-    echo '' >> $FISH_CONFIG
-    echo '# Welcome message' >> $FISH_CONFIG
-    echo 'function fish_greeting' >> $FISH_CONFIG
-    echo '    echo "🚀 Node.js Dev Container Ready!"' >> $FISH_CONFIG
-    echo '    echo "📦 Available package managers: npm, yarn, pnpm"' >> $FISH_CONFIG
-    echo '    echo "🔧 Git tools: lazygit (lg), delta diff, GitHub CLI (gh), git aliases via plugin"' >> $FISH_CONFIG
-    echo '    echo "🐟 Fish shell with Fisher plugins loaded"' >> $FISH_CONFIG
-    echo 'end' >> $FISH_CONFIG
-    " >/dev/null 2>&1 || true
-fi
-
-echo "✅ Fish shell configuration completed!"
-
 echo "🗂 Ensuring shared workspaces volume exists..."
 WORKSPACES_DIR="/home/node/workspaces"
 mkdir -p "$WORKSPACES_DIR" || true
@@ -153,13 +82,7 @@ if [ -z "$CURRENT_EMAIL" ] && [ -n "${GIT_USER_EMAIL:-}" ]; then
     git config --global user.email "$GIT_USER_EMAIL"
 fi
 
-# Core Git defaults (safe to reapply)
-git config --global init.defaultBranch main || true
-git config --global pull.rebase false || true
-git config --global core.pager "delta" || true
-git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit" || true
-
-echo "✅ Git configured."
+echo "✅ Git identity configured (defaults are baked into image)."
 
 # Mark completion for this container instance
 touch "$MARKER_FILE"
