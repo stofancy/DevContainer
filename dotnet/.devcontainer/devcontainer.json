@@ -1,57 +1,68 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/dotnet
 {
-	"name": ".NET Extended",
-	// Use Dockerfile for custom configuration
-	"build": {
-		"dockerfile": "Dockerfile"
-	},
-	"features": {
-		"ghcr.io/devcontainers/features/dotnet:2": {
-			"version": "8.0",
-			"additionalVersions": "6.0,7.0"
-		},
-		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
-			"version": "latest",
-			"enableNonRootDocker": "true"
-		}
-	},
-	// Configure tool-specific properties
-	"customizations": {
-		"vscode": {
-			"settings": {
-				"terminal.integrated.defaultProfile.linux": "zsh",
-				"omnisharp.dotNetCliPaths": [
-					"/usr/local/dotnet/dotnet"
-				]
-			},
-			"extensions": [
-				"ms-dotnettools.csharp",
-				"ms-dotnettools.csdevkit",
-				"ms-dotnettools.vscode-dotnet-runtime",
-				"ms-vscode.vscode-json",
-				"ms-vscode.powershell",
-				"formulahendry.dotnet-test-explorer"
-			]
-		}
-	},
+  "name": ".NET Extended",
+  // Use Dockerfile for custom configuration
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/dotnet:2": {
+      "version": "9.0",
+      "additionalVersions": "8.0,10.0"
+    },
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "latest",
+      "enableNonRootDocker": "true"
+    }
+  },
+  // Configure tool-specific properties
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "fish",
+        "terminal.integrated.profiles.linux": {
+          "fish": {
+            "path": "/usr/bin/fish"
+          },
+        "omnisharp.dotNetCliPaths": ["/usr/local/dotnet/dotnet"]
+      },
+      "extensions": [
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.csdevkit",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "ms-vscode.vscode-json",
+        "ms-vscode.powershell",
+        "formulahendry.dotnet-test-explorer",
+        "esbenp.prettier-vscode",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "eamodio.gitlens",
+        "GitHub.vscode-pull-request-github"
+      ]
+    }
+  },
 
-	// Load environment variables from .env file with base64 encoded SSH keys
-	"runArgs": ["--env-file", "dotnet/.env"],
+  // Load .env file if it exists (for SSH keys, tokens, etc.)
+  // See README.md for details on setting up .env file
+  "runArgs": ["--env-file", ".env"],
 
-	// Container environment variables
-	"containerEnv": {
-		"DOCKER_HOST": "tcp://host.docker.internal:2375"
-	},
+  // Container environment variables
+  "containerEnv": {
+    "NPM_TOKEN": "${localEnv:NPM_TOKEN}",
+    "NUGET_PAT": "${localEnv:NUGET_PAT}",
+    "NPM_IDENT": "${localEnv:NPM_IDENT}",
+    "DOCKER_HOST": "tcp://host.docker.internal:2375"
+  },
 
-	// Shared persistent workspaces volume
-	"mounts": [
-		"source=devcontainer-shared-workspaces,target=/home/vscode/workspaces,type=volume"
-	],
-	
-	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "/tmp/post-create-setup.sh",
+  // Shared persistent workspaces volume
+  "mounts": [
+    "source=devcontainer-shared-workspaces,target=/home/vscode/workspaces,type=volume"
+  ],
 
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	"remoteUser": "vscode"
+  // Use 'postCreateCommand' to run commands after the container is created.
+  "postCreateCommand": "/tmp/post-create-setup.sh",
+
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  "remoteUser": "vscode"
 }
