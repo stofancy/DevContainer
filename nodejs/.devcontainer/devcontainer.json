@@ -45,6 +45,8 @@
     "NPM_TOKEN": "${localEnv:NPM_TOKEN}",
     "NUGET_PAT": "${localEnv:NUGET_PAT}",
     "NPM_IDENT": "${localEnv:NPM_IDENT}",
+    "GIT_USER_NAME": "${localEnv:GIT_USER_NAME}",
+    "GIT_USER_EMAIL": "${localEnv:GIT_USER_EMAIL}",
     "DOCKER_HOST": "tcp://host.docker.internal:2375"
   },
 
