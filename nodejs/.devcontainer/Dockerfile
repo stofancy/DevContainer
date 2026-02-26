@@ -1,55 +1,62 @@
-FROM mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm
+FROM mcr.microsoft.com/devcontainers/javascript-node:24-bookworm
 
-# Install common tools and Fish shell
-RUN apt-get update && apt-get install -y \
-    fish \
-    vim \
-    git \
-    tig \
-    telnet \
-    htop \
-    tree \
-    curl \
-    wget \
-    jq \
-    nano \
-    less \
-    tmux \
-    screen \
-    zip \
-    unzip \
-    redis-tools \
-    netcat-traditional \
-    dnsutils \
-    iputils-ping \
-    traceroute \
-    tcpdump \
-    strace \
-    lsof \
-    dos2unix \
-    software-properties-common \
+# Install common tools, .NET SDK (LTS), and GitHub CLI
+RUN apt-get update \
+    && apt-get install -y \
+        ca-certificates \
+        gnupg \
+        fish \
+        vim \
+        git \
+        tig \
+        telnet \
+        htop \
+        tree \
+        curl \
+        wget \
+        jq \
+        fzf \
+        nano \
+        less \
+        tmux \
+        screen \
+        zip \
+        unzip \
+        redis-tools \
+        netcat-traditional \
+        dnsutils \
+        iputils-ping \
+        traceroute \
+        tcpdump \
+        strace \
+        lsof \
+        dos2unix \
+        software-properties-common \
+    && wget -qO /tmp/packages-microsoft-prod.deb https://packages.microsoft.com/config/debian/12/packages-microsoft-prod.deb \
+    && dpkg -i /tmp/packages-microsoft-prod.deb \
+    && rm /tmp/packages-microsoft-prod.deb \
+    && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+    && apt-get update \
+    && apt-get install -y dotnet-sdk-8.0 gh git-extras \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Install modern Git tools
-# Install Delta (better git diff) - always latest
-RUN DELTA_VERSION=$(curl -s https://api.github.com/repos/dandavison/delta/releases/latest | grep -Po '"tag_name": "\K.*?(?=")') \
-    && curl -sL "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/git-delta_${DELTA_VERSION}_amd64.deb" -o /tmp/git-delta.deb \
+# Install Delta (better git diff) - pinned version (update periodically)
+# Latest as of Feb 2026: https://github.com/dandavison/delta/releases
+ENV DELTA_VERSION=0.18.2
+RUN echo "Installing Delta version: ${DELTA_VERSION}" \
+    && curl -fsSL "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/git-delta_${DELTA_VERSION}_amd64.deb" -o /tmp/git-delta.deb \
     && dpkg -i /tmp/git-delta.deb \
     && rm /tmp/git-delta.deb
 
-# Install Lazygit (git TUI) - always latest
-RUN LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') \
-    && curl -sL "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" | tar -xz -C /usr/local/bin lazygit
-
-# Install GitHub CLI
-RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-    && apt-get update \
-    && apt-get install -y gh git-extras \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Install Lazygit (git TUI) - pinned version (update periodically)
+# Latest as of Feb 2026: https://github.com/jesseduffield/lazygit/releases
+ENV LAZYGIT_VERSION=0.59.0
+RUN echo "Installing Lazygit version: ${LAZYGIT_VERSION}" \
+    && curl -fsSL "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" | tar -xz -C /usr/local/bin lazygit
 
 # Copy post-create setup script
 COPY post-create-setup.sh /tmp/post-create-setup.sh
@@ -59,13 +66,17 @@ RUN chmod +x /tmp/post-create-setup.sh
 # Switch to the node user (default user in javascript-node base image)
 USER node
 
+# Install NVM for the node user (latest)
+ENV NVM_DIR=/home/node/.nvm
+RUN curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash \
+    && bash -lc "source $NVM_DIR/nvm.sh && nvm alias default system"
+
 # Install Fisher (Fish plugin manager) using the standard method
 RUN fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
 
 # Install essential Fish plugins (with fallback if they fail)
 RUN fish -c "fisher install jorgebucaran/autopair.fish" || true
-RUN fish -c "fisher install jethrokuan/z" || true  
-RUN fish -c "fisher install oh-my-fish/theme-bobthefish" || true
+RUN fish -c "fisher install jethrokuan/z" || true
 # Install git aliases plugin - provides comprehensive git abbreviations
 RUN fish -c "fisher install jhillyerd/plugin-git" || true
 # Install additional useful plugins
@@ -73,6 +84,8 @@ RUN fish -c "fisher install franciscolourenco/done" || true
 RUN fish -c "fisher install PatrickF1/fzf.fish" || true
 # Ensure bass is available for NVM integration in Fish
 RUN fish -c "fisher install edc/bass" || true
+RUN fish -c "fisher install IlanCosman/tide@v6" || true
+RUN fish -c "tide configure --auto" || true
 
 # Install additional package managers
 USER root
@@ -84,45 +97,12 @@ RUN npm install -g yarn
 
 USER node
 
-# Configure Fish shell with useful settings (after plugin installation)
-RUN echo '# Fish configuration' > ~/.config/fish/config.fish \
-    && echo '' >> ~/.config/fish/config.fish \
-    && echo '# Set environment variables' >> ~/.config/fish/config.fish \
-    && echo 'set -gx EDITOR vim' >> ~/.config/fish/config.fish \
-    && echo 'set -gx VISUAL vim' >> ~/.config/fish/config.fish \
-    && echo '' >> ~/.config/fish/config.fish \
-    && echo '# Git aliases provided by jhillyerd/plugin-git plugin' >> ~/.config/fish/config.fish \
-    && echo '# Available aliases include: gst, gd, ga, gc, gp, gl, gco, glog, etc.' >> ~/.config/fish/config.fish \
-    && echo '# Use "abbr --list | grep git" to see all available git abbreviations' >> ~/.config/fish/config.fish \
-    && echo '' >> ~/.config/fish/config.fish \
-    && echo '# Modern tool aliases' >> ~/.config/fish/config.fish \
-    && echo 'alias lg "lazygit"' >> ~/.config/fish/config.fish \
-    && echo '' >> ~/.config/fish/config.fish \
-    && echo '# Package manager shortcuts' >> ~/.config/fish/config.fish \
-    && echo 'alias pn "pnpm"' >> ~/.config/fish/config.fish \
-    && echo 'alias yr "yarn"' >> ~/.config/fish/config.fish \
-    && echo '' >> ~/.config/fish/config.fish \
-    && echo '# SSH Agent configuration' >> ~/.config/fish/config.fish \
-    && echo 'if test -z "$SSH_AUTH_SOCK"' >> ~/.config/fish/config.fish \
-    && echo '    eval (ssh-agent -c)' >> ~/.config/fish/config.fish \
-    && echo '    ssh-add ~/.ssh/id_rsa 2>/dev/null' >> ~/.config/fish/config.fish \
-    && echo 'end' >> ~/.config/fish/config.fish \
-    && echo '' >> ~/.config/fish/config.fish \
-    && echo '# NVM configuration for Fish' >> ~/.config/fish/config.fish \
-    && echo 'function nvm' >> ~/.config/fish/config.fish \
-    && echo '    bass source ~/.nvm/nvm.sh --no-use ';' nvm $argv' >> ~/.config/fish/config.fish \
-    && echo 'end' >> ~/.config/fish/config.fish \
-    && echo '' >> ~/.config/fish/config.fish \
-    && echo '# Auto-load nvm on Fish start' >> ~/.config/fish/config.fish \
-    && echo 'nvm use default --silent 2>/dev/null' >> ~/.config/fish/config.fish \
-    && echo '' >> ~/.config/fish/config.fish \
-    && echo '# Welcome message' >> ~/.config/fish/config.fish \
-    && echo 'function fish_greeting' >> ~/.config/fish/config.fish \
-    && echo '    echo "🚀 Node.js Dev Container Ready!"' >> ~/.config/fish/config.fish \
-    && echo '    echo "📦 Available package managers: npm, yarn, pnpm"' >> ~/.config/fish/config.fish \
-    && echo '    echo "🔧 Git tools: lazygit (lg), delta diff, GitHub CLI (gh), git aliases via plugin"' >> ~/.config/fish/config.fish \
-    && echo '    echo "🐟 Fish shell with Fisher plugins loaded"' >> ~/.config/fish/config.fish \
-    && echo 'end' >> ~/.config/fish/config.fish
+# Copy and run Fish config setup script
+COPY setup-fish-config.sh /tmp/setup-fish-config.sh
+USER root
+RUN chmod +x /tmp/setup-fish-config.sh
+USER node
+RUN /tmp/setup-fish-config.sh
 
 # Configure vim with basic settings
 RUN echo 'syntax on' > ~/.vimrc \
